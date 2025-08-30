@@ -60,6 +60,7 @@ class Device(TypedDict):
     output_name: str
     remappings: Remappings
     modifier_groups: ModifierGroups
+    delete_buttons: bool
 
 
 class Config(TypedDict):
@@ -363,6 +364,12 @@ def register_device(device: Device, loop: AbstractEventLoop):
         for remapping in flatmap(modifier_groups[group].values()):
             if "code" in remapping:
                 extended.update([remapping["code"]])
+    if device["delete_buttons"]:
+        no_BTN = list()
+        for each in extended:
+            if each < 256:
+                no_BTN.append(each)
+        extended = no_BTN
 
     caps[ecodes.EV_KEY] = list(extended)
     output = UInput(caps, input_props=input.input_props(), name=device["output_name"])
